@@ -1,12 +1,37 @@
 installed ubuntu on a laptop via USB.
+
 created zip_job.py using an online python IDE:
       create zip files with .txt files within based on a fixed array and an environment variable as a suffix. 
-install docker engine.
-install docker desktop.
-Create a Dockerfile based on ubuntu`s latest version. inside the image:
+      
+installed docker (ubuntu) engine.
+installed docker desktop.
+created a Dockerfile based on ubuntu`s latest version. inside the image:
       installed vim, python, zip and unzip.
       copied zip_job.py to the image`s /tmp folder.
       added a CMD directive to print OS type and architecture + verify /tmp/zip_job.py exists.
-run a container based on the image and tested functionality.
+run a container based on the image and tested functionality, as a root user to avoid any permission problems.
+pushed the dockerfile into a public repository named "yaleea/final".
+
 deployed a jenkins server using the docker image.
 configured additional plugins to the jenkins server to support docker agents.
+computer was too slow and could no connect in a dependable manner, ans do I downloaded VM-ubuntu to a stronger computer with windows.
+installed docker (ubuntu) on VM.
+deployed a jenkins server using ubuntu installation.
+
+wrote a declarative pipeline:
+pipeline {
+    agent {
+        docker { image 'yaleea/final' }
+    }
+    stages {
+        stage('Test') {
+            steps {
+                sh '/tmp/zip_job.py'
+            }
+        }
+    }
+}
+
+
+wrote a descriptive pipline: 
+
