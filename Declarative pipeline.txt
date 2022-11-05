@@ -1,0 +1,28 @@
+Declarative pipeline:
+
+pipeline {
+    agent {
+        docker { 
+            image 'yaleea/final:latest' 
+            args '--privileged'
+            // label 'zip-job-docker'
+            
+        }
+    }
+    stages {
+        stage('build') {
+            steps {
+                sh 'python3 /tmp/zip_job.py'
+            }
+        }
+        
+        stage('Report') {
+            steps {
+                emailext body: 'Hello ${currentBuild.currentResult}',
+                subject: 'Work status',
+                to: 'yalee1996@gmail.com'
+            }
+        }
+    }
+ 
+}

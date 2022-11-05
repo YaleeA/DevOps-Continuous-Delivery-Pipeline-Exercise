@@ -1,0 +1,23 @@
+Scripted pipline:
+
+node {
+    docker.image('yaleea/final').inside('--privileged ') {
+        AGENT_LABEL = 'zip-job-docker'
+    stage('build') { 
+        sh 'python3 /tmp/zip_job.py'
+    }
+    stage('Publish') { 
+        def emailBody = 'Hello ${currentBuild.currentResult}'
+        def emailSubject = "Work status"
+        
+         emailext body: "${emailBody}",
+                subject: "${emailSubject}",
+                to: 'yaleealmaliah@gmail.com'
+    }
+      stage('Cleanup') { 
+       deleteDir()
+    }
+    
+    }
+
+
