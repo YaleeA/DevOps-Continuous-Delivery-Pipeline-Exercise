@@ -35,7 +35,7 @@ pipeline {
         }
     }
     stages {
-        stage('Test') {
+        stage('build') {
             steps {
                 sh 'python3 /tmp/zip_job.py'
             }
