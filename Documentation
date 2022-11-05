@@ -3,35 +3,74 @@ installed ubuntu on a laptop via USB.
 created zip_job.py using an online python IDE:
       create zip files with .txt files within based on a fixed array and an environment variable as a suffix. 
       
-installed docker (ubuntu) engine.
+installed docker engine.
 installed docker desktop.
 created a Dockerfile based on ubuntu`s latest version. inside the image:
       installed vim, python, zip and unzip.
       copied zip_job.py to the image`s /tmp folder.
       added a CMD directive to print OS type and architecture + verify /tmp/zip_job.py exists.
 run a container based on the image and tested functionality, as a root user to avoid any permission problems.
-pushed the dockerfile into a public repository named "yaleea/final".
+pushed the docker image into a public repository named "yaleea/final".
 
 deployed a jenkins server using the docker image.
 configured additional plugins to the jenkins server to support docker agents.
-computer was too slow and could no connect in a dependable manner, ans do I downloaded VM-ubuntu to a stronger computer with windows.
-installed docker (ubuntu) on VM.
-deployed a jenkins server using ubuntu installation.
+There were two problems:
+1. Since the server ran via Docker, it wasn't able to run the build container in it (container inside a container) without some hacking.
+2. Computer was too slow and could no connect in a stable manner.
+
+And so I moved to a faster computer and installed everything again on a Kubuntu VM.
+this time I deployed a jenkins server using the full ubuntu installation, instead of the Docker-based one.
+Now I could run pipelines on the build image.
+
+As part of the piplines I configured an SMTP connection from the jenkins server to my gmail account.
 
 wrote a declarative pipeline:
 pipeline {
     agent {
-        docker { image 'yaleea/final' }
+        docker { 
+            image 'yaleea/final:latest' 
+            args '--privileged'
+            // label 'zip-job-docker'
+            
+        }
     }
     stages {
         stage('Test') {
             steps {
-                sh '/tmp/zip_job.py'
+                sh 'python3 /tmp/zip_job.py'
+            }
+        }
+        
+        stage('Report') {
+            steps {
+                emailext body: 'Hello ${currentBuild.currentResult}',
+                subject: 'Work status',
+                to: 'yalee1996@gmail.com'
             }
         }
     }
+ 
 }
 
 
-wrote a descriptive pipline: 
-
+wrote a scriptive pipline:
+node {
+    docker.image('yaleea/final').inside('--privileged ') {
+        AGENT_LABEL = 'zip-job-docker'
+    stage('build') { 
+        sh 'python3 /tmp/zip_job.py'
+    }
+    stage('Publish') { 
+        def emailBody = 'Hello ${currentBuild.currentResult}'
+        def emailSubject = "Work status"
+        
+         emailext body: "${emailBody}",
+                subject: "${emailSubject}",
+                to: 'yaleealmaliah@gmail.com'
+    }
+      stage('Cleanup') { 
+       deleteDir()
+    }
+    
+    }
+   
